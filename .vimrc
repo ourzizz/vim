@@ -285,5 +285,5 @@ let $VIMFILES=$HOME.'/.vim'
 let $V=$HOME.'/.vimrc'
 set undofile
 set undodir=$VIMFILES/\_undodir
-set undolevels=1000 "maximum number of changes that can be undone"
+set undolevels=1000 "maximum number of changes that can be undone 撤销次数1000
 "}}}
