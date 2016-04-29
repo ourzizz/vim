@@ -1,3 +1,6 @@
+"global-------------------------------------------------------------------{{{
+set ic
+"}}}
 "lorscheme-------------------------------------------------------------------{{{
 "colorscheme peachpuff#刺眼
 "colorscheme elflord
@@ -13,6 +16,8 @@
 "}}}
 "BASIC SET-----------------------------------------------{{{
 "Make space more useful zediekj
+set history=5000
+set incsearch
 set hls
 set autoindent
 set tabstop=4  
@@ -30,6 +35,15 @@ set noeb
 set nocompatible
 filetype plugin on
 syntax on
+
+xnoremap * :<C-u>call <SID>VSetSearch()<CR>/<C-R>=@/<CR><CR>
+xnoremap # :<C-u>call <SID>VSetSearch()<CR>?<C-R>=@/<CR><CR>
+function! s:VSetSearch()
+    let temp = @s
+    norm! gv"sy
+    let @/ = '\V' . substitute(escape(@s, '/\'), '\n', '\\n', 'g')
+    let @s = temp
+endfunction
 "}}}
 "MAPS-----------------------------------------------{{{
 let mapleader = ","  
@@ -46,40 +60,44 @@ noremap <space>" viw<esc>a"<esc>hbi"<esc>lel
 noremap <space>_ viw<esc>a__<esc>hbi__<esc>lel
 nnoremap H 0
 nnoremap L g_
-onoremap p i(
-        onoremap in :<c-u>execute "normal! ?@\r:nohlsearch\rbviw"<cr>
-        nnoremap <C-j> <C-W>j
-        nnoremap <C-k> <C-W>k
-        nnoremap <C-h> <C-W>h
-        nnoremap <C-l> <C-W>l
-        nnoremap <f8> :NERDTreeMirror<cr>
-        nnoremap <f8> :NERDTreeToggle<cr>
-        nnoremap gr gt
-        "}}}
-        "Abbreviations-----------------------------------------------{{{
-        iabbrev adn and
-        iabbrev fct function
-        iabbrev rrn return
-        iabbrev ptr print
-        iabbrev 163 ourzizz@163.com
-        iabbrev qq 552716481@qq.com
-        iabbrev gmail ourzizz@gmail.com
-        iab date <c-r>=strftime("%y-%m-%d")<cr>
-        "}}}
-        "autocmd-----------------------------------------------{{{
-        augroup auto_cmd
-        autocmd!
-        autocmd FileType vim setlocal foldmethod=marker
-autocmd FileType python nnoremap <buffer> <F5> :w<cr>:!python %<cr>
-autocmd Bufreadpre *.vim :nnoremap <buffer> <F5> :w<cr>:source %<cr>
+onoremap p i(   
+onoremap in :<c-u>execute "normal! ?@\r:nohlsearch\rbviw"<cr>
+nnoremap <C-j> <C-W>j
+nnoremap <C-k> <C-W>k
+nnoremap <C-h> <C-W>h
+nnoremap <C-l> <C-W>l
+nnoremap <f8> :NERDTreeMirror<cr>
+nnoremap <f8> :NERDTreeToggle<cr>
+nnoremap gr gt
+nnoremap av gg<s-V>G
+"}}}
+"Abbreviations-----------------------------------------------{{{
+iabbrev adn and
+iabbrev chomd chmod
+iabbrev fct function
+iabbrev rrn return
+iabbrev ptr print
+iabbrev 163 ourzizz@163.com
+iabbrev qq 552716481@qq.com
+iabbrev sfz 522401198508292031
+iabbrev gmail ourzizz@gmail.com
+iab date <c-r>=strftime("%y-%m-%d")<cr>
+"}}}
+"autocmd-----------------------------------------------{{{
+augroup auto_cmd
+    autocmd!
+    autocmd FileType vim setlocal foldmethod=marker
+    autocmd FileType python nnoremap <buffer> <F5> :w<cr>:!python %<cr>
+    autocmd Bufreadpre *.vim :nnoremap <buffer> <F5> :w<cr>:source %<cr>
 
-autocmd FileType python nnoremap <buffer> <localleader>c I//<esc>
-autocmd FileType perl nnoremap <buffer> <F5> :w<cr>:!perl %<cr>
-autocmd BufWritePre *.html :normal gg=G`.
+    autocmd FileType python nnoremap <buffer> <localleader>c I//<esc>
+    autocmd FileType perl nnoremap <buffer> <F5> :w<cr>:!perl %<cr>
+    autocmd FileType sh nnoremap <buffer> <F5> :w<cr>:!%<cr>
+    "autocmd BufWritePre *.html :normal gg=G`.
 
-autocmd FileType python :iabbrev <buffer> iff if:<left>
-autocmd FileType javascript :iabbrev <buffer> iff if()<left>
-"autocmd FileType *.html :normal gg=G`.
+    autocmd FileType python :iabbrev <buffer> iff if:<left>
+    autocmd FileType javascript :iabbrev <buffer> iff if()<left>
+    "autocmd FileType *.html :normal gg=G`.
 
 augroup END
 
@@ -132,7 +150,7 @@ let g:UltiSnipsJumpForwardTrigger = "<tab>"
 let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
 "---------------------------------------------"
 Bundle 'ervandew/supertab'
-Bundle 'hallettj/jslint.vim'
+"Bundle 'hallettj/jslint.vim'
 Bundle 'tpope/vim-fugitive'
 Bundle 'Yggdroot/indentLine'
 Bundle 'plasticboy/vim-markdown'
@@ -188,7 +206,7 @@ nmap <f4> :call ViewInBrowser()<cr>
 func! CompileGcc()
     exec "w"
     let compilecmd="!gcc "
-    let compileflag="-o %< -g "
+    let compileflag="-o %<.out -g "
     if search("mpi\.h") != 0
         let compilecmd = "!mpicc "
     endif
@@ -209,7 +227,7 @@ endfunc
 func! CompileGpp()
     exec "w"
     let compilecmd="!g++ "
-    let compileflag="-o %< -g "
+    let compileflag="-o %<.out -g "
     if search("mpi\.h") != 0
         let compilecmd = "!mpic++ "
     endif
@@ -229,42 +247,43 @@ func! CompileGpp()
 endfunc
 
 func! RunPython()
-        exec "!python %"
+    exec "!python %"
 endfunc
 func! CompileJava()
     exec "!javac %"
 endfunc
 
 func! CompileCode()
-        exec "w"
-        if &filetype == "cpp"
-                exec "call CompileGpp()"
-        elseif &filetype == "c"
-                exec "call CompileGcc()"
-        elseif &filetype == "python"
-                exec "call RunPython()"
-        elseif &filetype == "java"
-                exec "call CompileJava()"
-        elseif &filetype == "sh"
-                exec "!chmod a+x %"
-        endif
+    exec "w"
+    if &filetype == "cpp"
+        exec "call CompileGpp()"
+    elseif &filetype == "c"
+        exec "call CompileGcc()"
+    elseif &filetype == "python"
+        exec "call RunPython()"
+    elseif &filetype == "java"
+        exec "call CompileJava()"
+    elseif &filetype == "sh"
+        exec "!chmod a+x %"
+    endif
 endfunc
 
 func! RunResult()
-        exec "w"
-        if search("mpi\.h") != 0
-            exec "!mpirun -np 4 ./%<"
-        elseif &filetype == "cpp"
-            exec "! ./%<"
-        elseif &filetype == "c"
-            exec "! ./%<"
-        elseif &filetype == "python"
-            exec "call RunPython"
-        elseif &filetype == "java"
-            exec "!java %<"
-        elseif &filetype == "sh"
-            exec "!./%"
-        endif
+    exec "w"
+    if search("mpi\.h") != 0
+        exec "!mpirun -np 4 ./%<"
+    elseif &filetype == "cpp"
+        exec "! ./%<.out"
+    elseif &filetype == "c"
+        exec "! ./%<.out"
+    elseif &filetype == "python"
+        exec "call RunPython"
+    elseif &filetype == "java"
+        exec "!java %<"
+    elseif &filetype == "sh"
+        exec "!chmod 755 ./%"
+        exec "!./%"
+    endif
 endfunc
 
 map <F5> :call CompileCode()<CR>
@@ -286,4 +305,147 @@ let $V=$HOME.'/.vimrc'
 set undofile
 set undodir=$VIMFILES/\_undodir
 set undolevels=1000 "maximum number of changes that can be undone 撤销次数1000
+"}}}
+"cscope-------------{{{ 
+"ZZ
+"if fileradable("cscope.out")
+"cs add csope.out
+"elseif $CSCOPE_DB  != ""
+"cs add $CSCOPE_DB
+"endif
+if has("cscope")
+
+    """"""""""""" Standard cscope/vim boilerplate
+
+    " use both cscope and ctag for 'ctrl-]', ':ta', and 'vim -t'
+    set cscopetag
+
+    " check cscope for definition of a symbol before checking ctags: set to 1
+    " if you want the reverse search order.
+    set csto=0
+
+    " add any cscope database in current directory
+    "if filereadable("cscope.out")
+    "cs add cscope.out  
+    " else add the database pointed to by environment variable 
+    "elseif $CSCOPE_DB != ""
+    "cs add $CSCOPE_DB
+    "endif
+
+    " show msg when any other cscope db added
+    set cscopeverbose  
+
+
+    """"""""""""" My cscope/vim key mappings
+    "
+    " The following maps all invoke one of the following cscope search types:
+    "
+    "   's'   symbol: find all references to the token under cursor
+    "   'g'   global: find global definition(s) of the token under cursor
+    "   'c'   calls:  find all calls to the function name under cursor
+    "   't'   text:   find all instances of the text under cursor
+    "   'e'   egrep:  egrep search for the word under cursor
+    "   'f'   file:   open the filename under cursor
+    "   'i'   includes: find files that include the filename under cursor
+    "   'd'   called: find functions that function under cursor calls
+    "
+    " Below are three sets of the maps: one set that just jumps to your
+    " search result, one that splits the existing vim window horizontally and
+    " diplays your search result in the new window, and one that does the same
+    " thing, but does a vertical split instead (vim 6 only).
+    "
+    " I've used CTRL-\ and CTRL-@ as the starting keys for these maps, as it's
+    " unlikely that you need their default mappings (CTRL-\'s default use is
+    " as part of CTRL-\ CTRL-N typemap, which basically just does the same
+    " thing as hitting 'escape': CTRL-@ doesn't seem to have any default use).
+    " If you don't like using 'CTRL-@' or CTRL-\, , you can change some or all
+    " of these maps to use other keys.  One likely candidate is 'CTRL-_'
+    " (which also maps to CTRL-/, which is easier to type).  By default it is
+    " used to switch between Hebrew and English keyboard mode.
+    "
+    " All of the maps involving the <cfile> macro use '^<cfile>$': this is so
+    " that searches over '#include <time.h>" return only references to
+    " 'time.h', and not 'sys/time.h', etc. (by default cscope will return all
+    " files that contain 'time.h' as part of their name).
+
+
+    " To do the first type of search, hit 'CTRL-\', followed by one of the
+    " cscope search types above (s,g,c,t,e,f,i,d).  The result of your cscope
+    " search will be displayed in the current window.  You can use CTRL-T to
+    " go back to where you were before the search.  
+    "
+
+    nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>	
+    nmap <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+    nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>	
+
+
+    " Using 'CTRL-spacebar' (intepreted as CTRL-@ by vim) then a search type
+    " makes the vim window split horizontally, with search result displayed in
+    " the new window.
+    "
+    " (Note: earlier versions of vim may not have the :scs command, but it
+    " can be simulated roughly via:
+    "    nmap <C-@>s <C-W><C-S> :cs find s <C-R>=expand("<cword>")<CR><CR>	
+
+    nmap <C-@>s :scs find s <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-@>g :scs find g <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-@>c :scs find c <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-@>t :scs find t <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-@>e :scs find e <C-R>=expand("<cword>")<CR><CR>	
+    nmap <C-@>f :scs find f <C-R>=expand("<cfile>")<CR><CR>	
+    nmap <C-@>i :scs find i ^<C-R>=expand("<cfile>")<CR>$<CR>	
+    nmap <C-@>d :scs find d <C-R>=expand("<cword>")<CR><CR>	
+
+
+    " Hitting CTRL-space *twice* before the search type does a vertical 
+    " split instead of a horizontal one (vim 6 and up only)
+    "
+    " (Note: you may wish to put a 'set splitright' in your .vimrc
+    " if you prefer the new window on the right instead of the left
+
+    nmap <C-@><C-@>s :vert scs find s <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-@><C-@>g :vert scs find g <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-@><C-@>c :vert scs find c <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-@><C-@>t :vert scs find t <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-@><C-@>e :vert scs find e <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-@><C-@>f :vert scs find f <C-R>=expand("<cfile>")<CR><CR>	
+    nmap <C-@><C-@>i :vert scs find i ^<C-R>=expand("<cfile>")<CR>$<CR>	
+    nmap <C-@><C-@>d :vert scs find d <C-R>=expand("<cword>")<CR><CR>
+
+
+    """"""""""""" key map timeouts
+    "
+    " By default Vim will only wait 1 second for each keystroke in a mapping.
+    " You may find that too short with the above typemaps.  If so, you should
+    " either turn off mapping timeouts via 'notimeout'.
+    "
+    "set notimeout 
+    "
+    " Or, you can keep timeouts, by uncommenting the timeoutlen line below,
+    " with your own personal favorite value (in milliseconds):
+    "
+    "set timeoutlen=4000
+    "
+    " Either way, since mapping timeout settings by default also set the
+    " timeouts for multicharacter 'keys codes' (like <F1>), you should also
+    " set ttimeout and ttimeoutlen: otherwise, you will experience strange
+    " delays as vim waits for a keystroke after you hit ESC (it will be
+    " waiting to see if the ESC is actually part of a key code like <F1>).
+    "
+    "set ttimeout 
+    "
+    " personally, I find a tenth of a second to work well for key code
+    " timeouts. If you experience problems and have a slow terminal or network
+    " connection, set it higher.  If you don't set ttimeoutlen, the value for
+    " timeoutlent (default: 1000 = 1 second, which is sluggish) is used.
+    "
+    "set ttimeoutlen=100
+
+endif
 "}}}
