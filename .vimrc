@@ -3,9 +3,10 @@ set ic
 "}}}
 "lorscheme-------------------------------------------------------------------{{{
 "colorscheme peachpuff#刺眼
-"colorscheme elflord
+colorscheme elflord
 "colorscheme lucius
 "colorscheme freya
+"colorscheme desert
 "colorscheme solarized
 "colorscheme fine_blue
 "colorscheme Tomorrow-Night-Blue
@@ -13,6 +14,7 @@ set ic
 "colorscheme Tomorrow-Night-Eighties
 "colorscheme Tomorrow-Night
 "colorscheme Tomorrow
+set guifont=UbuntuMono\ 12
 "}}}
 "BASIC SET-----------------------------------------------{{{
 "Make space more useful zediekj
@@ -273,9 +275,9 @@ func! RunResult()
     if search("mpi\.h") != 0
         exec "!mpirun -np 4 ./%<"
     elseif &filetype == "cpp"
-        exec "! ./%<.out"
+        exec "! %<.out"
     elseif &filetype == "c"
-        exec "! ./%<.out"
+        exec "! %<.out"
     elseif &filetype == "python"
         exec "call RunPython"
     elseif &filetype == "java"
